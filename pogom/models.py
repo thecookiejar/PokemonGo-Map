@@ -612,8 +612,8 @@ def parse_map(args, map_dict, step_location, db_update_queue, wh_update_queue):
                     # Set a value of 15 minutes because currently its unknown but larger than 15.
                     d_t = datetime.utcfromtimestamp((p['last_modified_timestamp_ms'] + 900000) / 1000.0)
 
-                printPokemon(p['pokemon_data']['pokemon_id'], p['latitude'],
-                             p['longitude'], d_t)
+                #printPokemon(p['pokemon_data']['pokemon_id'], p['latitude'],
+                #             p['longitude'], d_t)
                 b64encounter_id = b64encode(str(p['encounter_id']))
                 if (not Pokemon.seen_before(b64encounter_id)):
                     pokemons[p['encounter_id']] = {
@@ -721,7 +721,7 @@ def parse_map(args, map_dict, step_location, db_update_queue, wh_update_queue):
     if len(gyms):
         db_update_queue.put((Gym, gyms))
 
-    log.info('Parsing found %d pokemons, %d pokestops, and %d gyms',
+    log.info('Parsing found %d new pokemons, %d pokestops, and %d gyms',
              len(pokemons),
              len(pokestops),
              len(gyms))

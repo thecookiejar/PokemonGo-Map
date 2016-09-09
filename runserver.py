@@ -84,7 +84,7 @@ def main():
     if args.verbose or args.very_verbose:
         log.setLevel(logging.DEBUG)
     else:
-        log.setLevel(logging.INFO)
+        log.setLevel(logging.ERROR)
 
     # Let's not forget to run Grunt / Only needed when running with webserver
     if not args.no_server:
@@ -93,10 +93,10 @@ def main():
             sys.exit()
 
     # These are very noisey, let's shush them up a bit
-    logging.getLogger('peewee').setLevel(logging.INFO)
+    logging.getLogger('peewee').setLevel(logging.ERROR)
     logging.getLogger('requests').setLevel(logging.WARNING)
     logging.getLogger('pgoapi.pgoapi').setLevel(logging.WARNING)
-    logging.getLogger('pgoapi.rpc_api').setLevel(logging.INFO)
+    logging.getLogger('pgoapi.rpc_api').setLevel(logging.ERROR)
     logging.getLogger('werkzeug').setLevel(logging.ERROR)
 
     config['parse_pokemon'] = not args.no_pokemon

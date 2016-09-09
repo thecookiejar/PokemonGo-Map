@@ -16,7 +16,7 @@ Search Architecture:
    - Can re-login as needed
    - Pushes finds to db queue and webhook queue
 '''
-
+import sys
 import logging
 import math
 import json
@@ -41,6 +41,7 @@ from .models import parse_map, Pokemon, PokemonIVs, hex_bounds, GymDetails, pars
 from .transform import generate_location_steps
 from .fakePogoApi import FakePogoApi
 from .utils import now
+from .customLog import printPokemonIVs
 
 import terminalsize
 
@@ -675,28 +676,32 @@ def search_worker_thread(args, account_queue, account_failures, search_items_que
                     status['message'] = 'Map parse failed at {:6f},{:6f}, abandoning location. {} may be banned.'.format(step_location[0], step_location[1], account['username'])
                     log.exception(status['message'])
 
-                if args.get_ivs and parsed:
+                if args.get_ivs > 0 and parsed:
                     # Get pokemon IVs
                     for pokemon in parsed['pokemons'].values():
-                        status['message'] = \
-                            'Getting IVs for encounter {}' \
-                            .format(b64decode(pokemon['encounter_id']))
-                        time.sleep(random.random() + 2)
-                        response = encounter_request(api, pokemon, args.jitter)
-                        if response['responses']['ENCOUNTER']['status'] != 1:
-                            log.warning('Pokemon encounter {} failed'.format(
-                                        b64decode(pokemon['encounter_id'])))
-                        else:
-                            encounter = response['responses']['ENCOUNTER']
-                            data = encounter['wild_pokemon']['pokemon_data']
-                            pokemon_ivs = {pokemon['encounter_id']: {
-                                'encounter_id': pokemon['encounter_id'],
-                                'iv_attack': data.get('individual_attack', 0),
-                                'iv_defense': data.get('individual_defense', 0),
-                                'iv_stamina': data.get('individual_stamina', 0)
-                            }}
-                            dbq.put((PokemonIVs, pokemon_ivs))
-
+                        if pokemon['pokemon_id'] == args.get_ivs:
+                            status['message'] = \
+                                'Getting IVs for encounter {}' \
+                                .format(b64decode(pokemon['encounter_id']))
+                            time.sleep(random.random() + 2)
+                            response = encounter_request(api, pokemon, args.jitter)
+                            if response['responses']['ENCOUNTER']['status'] != 1:
+                                log.warning('Pokemon encounter {} failed'.format(
+                                            b64decode(pokemon['encounter_id'])))
+                            else:
+                                encounter = response['responses']['ENCOUNTER']
+                                data = encounter['wild_pokemon']['pokemon_data']
+                                pokemon_ivs = {pokemon['encounter_id']: {
+                                    'encounter_id': pokemon['encounter_id'],
+                                    'iv_attack': data.get('individual_attack', 0),
+                                    'iv_defense': data.get('individual_defense', 0),
+                                    'iv_stamina': data.get('individual_stamina', 0)
+                                }}
+                                printPokemonIVs(pokemon['pokemon_id'], pokemon['latitude'], pokemon['longitude'], pokemon['disappear_time'], data.get('individual_attack', 0), data.get('individual_defense', 0), data.get('individual_stamina', 0))
+                                dbq.put((PokemonIVs, pokemon_ivs))
+                print("completed")
+                os._exit(1)
+                
                 # Get detailed information about gyms
                 if args.gym_info and parsed:
                     # build up a list of gyms to update
@@ -758,7 +763,7 @@ def search_worker_thread(args, account_queue, account_failures, search_items_que
             time.sleep(args.scan_delay)
             log.error('Exception in search_worker under account {} Exception message: {}'.format(account['username'], e))
             account_failures.append({'account': account, 'last_fail_time': now(), 'reason': 'exception'})
-
+        
 
 def check_login(args, account, api, position, proxy_url):
 
