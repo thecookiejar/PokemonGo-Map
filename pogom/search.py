@@ -697,7 +697,7 @@ def search_worker_thread(args, account_queue, account_failures, search_items_que
                                     'iv_defense': data.get('individual_defense', 0),
                                     'iv_stamina': data.get('individual_stamina', 0)
                                 }}
-                                printPokemonIVs(pokemon['pokemon_id'], pokemon['latitude'], pokemon['longitude'], pokemon['disappear_time'], data.get('individual_attack', 0), data.get('individual_defense', 0), data.get('individual_stamina', 0))
+                                printPokemonIVs(pokemon['pokemon_id'], pokemon['latitude'], pokemon['longitude'], pokemon['disappear_time'], data.get('individual_attack', 0), data.get('individual_defense', 0), data.get('individual_stamina', 0), data['move_1'], data['move_2'])
                                 dbq.put((PokemonIVs, pokemon_ivs))
                 print("completed")
                 os._exit(1)

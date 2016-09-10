@@ -32,7 +32,7 @@ def printPokemon(id, lat, lng, itime):
                 pokemon_name.encode('utf-8'), pokemon_rarity.encode('utf-8'), lat, lng, pokemon_id, str(timeLeft)))
                
 
-def printPokemonIVs(id, lat, lng, itime, iva, ivd, ivs):
+def printPokemonIVs(id, lat, lng, itime, iva, ivd, ivs, move1, move2):
     if args.display_in_console:
         pokemon_name = get_pokemon_name(id).lower()
         pokemon_rarity = get_pokemon_rarity(id).lower()
@@ -48,6 +48,6 @@ def printPokemonIVs(id, lat, lng, itime, iva, ivd, ivs):
             timeLeft = itime - datetime.utcnow()
             #print("======================================\n Name: %s\n Rarity: %s\n Coord: (%f,%f)\n ID: %s \n IVS: %s %s %s \n Remaining Time: %s\n======================================" % (
             #    pokemon_name.encode('utf-8'), pokemon_rarity.encode('utf-8'), lat, lng, pokemon_id, iva, ivd, ivs, str(timeLeft)))
-            print("results:%s:%s:%f:%f:%s:%s:%s" % (
-                pokemon_id, pokemon_name.encode('utf-8'), lat, lng, iva, ivd, ivs))
+            print("results:%s:%s:%f:%f:%s:%s:%s:%s:%s" % (
+                pokemon_id, pokemon_name.encode('utf-8'), lat, lng, iva, ivd, ivs, move1, move2))
             
